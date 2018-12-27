@@ -77,49 +77,64 @@ var progressBar = {
 	},
 	annularStart: function(percent){
 
-		var radiu = Math.ceil(360 * percent / 100 / 20);
-
 		this.ctx = this.obj.getContext("2d");
 		
-		this.ctx.translate(0.5, 0.5);
+		this.ctx.translate(0.5, 0.5);  //解决canvas线条模糊问题
 		this.ctx.beginPath();
 		this.ctx.fillStyle = '#CCC';
 		this.ctx.arc(this.center, this.center, this.excricle, 0, this.pi * 360, true);
 		this.ctx.fill();
 
-		var countByPB = 0;
+		var countByPB = 1;
 		this.timeOut_id = setInterval(function() {
-			progressBar.pureCricle(radiu, countByPB);
+			progressBar.pureCricle(percent / 20, countByPB);
 			countByPB ++;
 		}, 100);
 	},
-	pureCricle: function(radiu, countByPB){
+	pureCricle: function(eqNum, countByPB){
 		if (countByPB >= 20) {
 			clearInterval(this.timeOut_id);return;
 		}
 
-		this.ctx.fillStyle = this.barcolor;
+		this.annularXY(eqNum, countByPB);
+
+		// this.ctx.fillStyle = this.barcolor;
 	},
-	annularXY: function(percent){
-		var num = Math.floor(percent / 25);
-		var angle = percent % 25;
+	annularXY: function(eqNum, countByPB){
+		var p = eqNum * countByPB;
+		var num = parseInt(p / 25);
+		var angle = p / 100 * 360;
+		console.log(angle);
+		console.log(this.center);
+		var xy = {x:null,y:null};
 		switch (num) {
-			case 0:
+			case 0://4
+				xy.x = this.excricle * Math.cos((~(90 - angle)) * this.pi);
+				xy.y = this.center + this.excricle * Math.sin(angle * this.pi);
 				break;
-			case 1:
+			case 1://1
+				xy.x = this.excricle * Math.cos(~(angle - 90) * this.pi);
+				xy.y = this.center + this.excricle * Math.sin(angle * this.pi);
 				break;
-			case 2:
+			case 2://2
+				xy.x = this.excricle * Math.cos(angle * this.pi);
+				xy.y = this.center + this.excricle * Math.sin(angle * this.pi);
 				break;
-			case 3:
+			case 3://3
+				xy.x = this.excricle * Math.cos(angle * this.pi);
+				xy.y = this.center - this.excricle * Math.sin(angle * this.pi);
 				break;
-			case 4:
+			case 4://终点
+				xy.x = this.center;
+				xy.y = 0;
 				break;
 		}
+		console.log(xy);
 	}
 }
 
-progressBar.init('pureColorAnnular', 30, 60, 'rgb(255, 255, 255)', '#3366FF', 'progressBar');
+progressBar.init('pureColorAnnular', 30, 10, 'rgb(255, 255, 255)', '#3366FF', 'progressBar');
 
 window.onresize = function(){
-	progressBar.init('pureColorAnnular', 30, 60, 'rgb(255, 255, 255)', '#3366FF', 'progressBar');
+	progressBar.init('pureColorAnnular', 30, 10, 'rgb(255, 255, 255)', '#3366FF', 'progressBar');
 }
