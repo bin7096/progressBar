@@ -41,6 +41,10 @@ var progressBar = {
 		'pureColorAnnular'
 	],
 	init: function(type, width, percent, bgcolor, barcolor, canvas_id, num){
+		//清除定时器
+		if (this.timeOut_id !== null) {
+			clearInterval(this.timeOut_id);
+		}
 		//检测类型
 		if (this.type.indexOf(type) == -1) {
 			throwError.init("type", "进度条类型不存在");return;
@@ -90,7 +94,6 @@ var progressBar = {
 			// progressBar.pureCricle(percent / num, countByPB, num);
 			// countByPB ++;
 		}, 20);
-		console.log(this.timeOut_id);
 	},
 	pureCricle: function(eqNum, countByPB, num){
 		if (countByPB > num) {
