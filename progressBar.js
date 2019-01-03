@@ -24,7 +24,7 @@ var throwError = {
 }
 
 var progressBar = {
-	pi 			:Math.PI / 180,
+	pi          :Math.PI / 180,
 	obj         :null,
 	ctx         :null,
 	width       :null,
