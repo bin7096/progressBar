@@ -68,12 +68,12 @@ var progressBar = {
 				break;
 		}
 	},
-	canvasStyle: function(bodyWidth){
+	canvasStyle: function(bodyWidth) {
 		var obj = document.getElementById(this.canvas_id);
 		obj.width = this.canvas_width = bodyWidth;
 		return obj;
 	},
-	cricleStyle: function(width, percent, num){
+	cricleStyle: function(width, percent, num) {
 		this.excricle = Math.floor(this.canvas_width * (width / 100) / 2);
 		this.incricle = Math.floor(this.excricle * 0.9);
 		this.center   = this.excricle;
@@ -85,33 +85,51 @@ var progressBar = {
 		
 		this.ctx.translate(0.5, 0.5);  //解决canvas线条模糊问题
 		this.ctx.beginPath();
-		this.ctx.fillStyle = '#000000';
+		this.ctx.fillStyle = '#CCC';
 		this.ctx.arc(this.center, this.center, this.excricle, 0, this.pi * 360, true);
 		this.ctx.fill();
 
 		var countByPB = 1;
 		this.timeOut_id = setInterval(function() {
-			// progressBar.pureCricle(percent / num, countByPB, num);
-			// countByPB ++;
+			progressBar.pureCricle(percent, countByPB, num);
+			countByPB ++;
 		}, 20);
 	},
-	pureCricle: function(eqNum, countByPB, num){
+	pureCricle: function(percent, countByPB, num) {
 		if (countByPB > num) {
 			clearInterval(this.timeOut_id);return;
 		}
-		console.log(countByPB);return;
 
+		var eqNum = percent / num;
 		var xy = this.annularXY(eqNum, countByPB);
-		console.log(xy);
 
-		this.ctx.strokeStyle = this.barcolor;
+		this.ctx.fillStyle = this.ctx.strokeStyle = this.barcolor;
+		this.ctx.beginPath();
 
-		this.ctx.moveTo(this.center,this.center);
-		this.ctx.lineTo(xy.x,xy.y);
-		this.ctx.stroke();
+		this.ctx.moveTo(this.center, this.center);
+		this.ctx.lineTo(this.center, 0);
+		// this.ctx.lineTo(xy.x, xy.y);
+		
+		if (percent > 50) {
+
+		}else{
+			var stopAngle = eqNum * countByPB / 100 * 360;
+			console.log(stopAngle);
+			if (stopAngle >= 90) {
+				stopAngle -= 90;
+			}else{
+				stopAngle += 270;
+			}
+			this.ctx.arc(this.center, this.center, this.excricle, 270 * this.pi, stopAngle * this.pi, false);
+		}
+
+		// this.ctx.moveTo(xy.x, xy.y);
+		// this.ctx.lineTo(this.center, this.center);
+
+		this.ctx.fill();
+		// this.ctx.stroke();
 	},
 	annularXY: function(eqNum, countByPB){
-		console.log(countByPB);
 		var p = eqNum * countByPB;
 		var num = p / 25;
 		if (parseInt(num) === num && num != 4) {
@@ -147,14 +165,14 @@ var progressBar = {
 	}
 }
 
-progressBar.init('pureColorAnnular', 60, 100, 'rgb(255, 255, 255)', '#3366FF', 'progressBar', 100);
+progressBar.init('pureColorAnnular', 60, 50, 'rgb(255, 255, 255)', '#3366FF', 'progressBar', 100);
 
 window.onresize = function(){
 	if (resize_num !== 0) {
-		return;
+		return;						//阻止onresize事件多次触发问题
 	}
 	resize_num ++;
-	progressBar.init('pureColorAnnular', 60, 100, 'rgb(255, 255, 255)', '#3366FF', 'progressBar', 100);
+	progressBar.init('pureColorAnnular', 60, 50, 'rgb(255, 255, 255)', '#3366FF', 'progressBar', 100);
 	setTimeout(function(){
 		resize_num = 0;
 	}, 100);
