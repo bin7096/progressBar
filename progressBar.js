@@ -88,12 +88,13 @@ var progressBar = {
 		this.ctx.fillStyle = '#CCC';
 		this.ctx.arc(this.center, this.center, this.excricle, 0, this.pi * 360, true);
 		this.ctx.fill();
+		this.ctx.closePath();
 
 		var countByPB = 1;
 		this.timeOut_id = setInterval(function() {
 			progressBar.pureCricle(percent, countByPB, num);
 			countByPB ++;
-		}, 20);
+		}, 10);
 	},
 	pureCricle: function(percent, countByPB, num) {
 		if (countByPB > num) {
@@ -101,33 +102,34 @@ var progressBar = {
 		}
 
 		var eqNum = percent / num;
-		var xy = this.annularXY(eqNum, countByPB);
 
 		this.ctx.fillStyle = this.ctx.strokeStyle = this.barcolor;
 		this.ctx.beginPath();
 
+		this.ctx.globalCompositeOperation = 'source-over';
+
 		this.ctx.moveTo(this.center, this.center);
 		this.ctx.lineTo(this.center, 0);
-		// this.ctx.lineTo(xy.x, xy.y);
 		
-		if (percent > 50) {
-
+		var stopAngle = eqNum * countByPB / 100 * 360;
+		if (stopAngle >= 90) {
+			stopAngle -= 90;
 		}else{
-			var stopAngle = eqNum * countByPB / 100 * 360;
-			console.log(stopAngle);
-			if (stopAngle >= 90) {
-				stopAngle -= 90;
-			}else{
-				stopAngle += 270;
-			}
+			stopAngle += 270;
+		}
+		if (stopAngle === 270) {
+			this.ctx.arc(this.center, this.center, this.excricle, 0, 360 * this.pi, false);
+		}else{
 			this.ctx.arc(this.center, this.center, this.excricle, 270 * this.pi, stopAngle * this.pi, false);
 		}
-
-		// this.ctx.moveTo(xy.x, xy.y);
-		// this.ctx.lineTo(this.center, this.center);
-
 		this.ctx.fill();
-		// this.ctx.stroke();
+		this.ctx.closePath();
+
+		this.ctx.beginPath();
+		this.ctx.globalCompositeOperation = 'destination-out';
+		this.fillStyle = 'black';
+		this.ctx.arc(this.center, this.center, this.incricle, 0, this.pi * 360, true);
+		this.ctx.fill();
 	},
 	annularXY: function(eqNum, countByPB){
 		var p = eqNum * countByPB;
@@ -165,14 +167,14 @@ var progressBar = {
 	}
 }
 
-progressBar.init('pureColorAnnular', 60, 50, 'rgb(255, 255, 255)', '#3366FF', 'progressBar', 100);
+progressBar.init('pureColorAnnular', 20, 100, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 200);
 
 window.onresize = function(){
 	if (resize_num !== 0) {
 		return;						//阻止onresize事件多次触发问题
 	}
 	resize_num ++;
-	progressBar.init('pureColorAnnular', 60, 50, 'rgb(255, 255, 255)', '#3366FF', 'progressBar', 100);
+	progressBar.init('pureColorAnnular', 20, 100, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 200);
 	setTimeout(function(){
 		resize_num = 0;
 	}, 100);
