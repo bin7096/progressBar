@@ -76,6 +76,7 @@ var progressBar = {
 	},
 	cricleStyle: function(width, percent, num) {
 		this.excricle = Math.floor(this.canvas_width * (width / 100) / 2);
+		console.log(this.excricle);
 		this.incricle = Math.floor(this.excricle * 0.9);
 		this.fontsize = Math.floor(this.excricle * 0.5);
 		this.center   = this.excricle;
@@ -104,6 +105,9 @@ var progressBar = {
 		}
 
 		var eqNum = percent / num;
+
+		var xy = this.annularXY(eqNum, countByPB);
+		console.log(xy);return;
 
 		this.ctx.fillStyle = this.ctx.strokeStyle = this.barcolor;
 		this.ctx.beginPath();
@@ -176,14 +180,14 @@ var progressBar = {
 	}
 }
 
-progressBar.init('pureColorAnnular', 60, 50, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 100);
+progressBar.init('pureColorAnnular', 60, 100, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 20);
 
 window.onresize = function(){
 	if (resize_num !== 0) {
 		return;						//阻止onresize事件多次触发问题
 	}
 	resize_num ++;
-	progressBar.init('pureColorAnnular', 60, 50, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 100);
+	progressBar.init('pureColorAnnular', 60, 100, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 20);
 	setTimeout(function(){
 		resize_num = 0;
 	}, 100);
