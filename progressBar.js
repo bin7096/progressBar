@@ -30,6 +30,7 @@ var progressBar = {
 	width       :null,
 	height      :null,
 	center      :null,
+	fontsize	:null,
 	excricle    :null,
 	incricle    :null,
 	bgcolor		:null,
@@ -69,13 +70,14 @@ var progressBar = {
 		}
 	},
 	canvasStyle: function(bodyWidth) {
-		var obj = document.getElementById(this.canvas_id);
+		var obj   = document.getElementById(this.canvas_id);
 		obj.width = this.canvas_width = bodyWidth;
 		return obj;
 	},
 	cricleStyle: function(width, percent, num) {
 		this.excricle = Math.floor(this.canvas_width * (width / 100) / 2);
 		this.incricle = Math.floor(this.excricle * 0.9);
+		this.fontsize = Math.floor(this.excricle * 0.5);
 		this.center   = this.excricle;
 		this.obj.width  = this.obj.height = this.excricle * 2;
 		this.annularStart(percent, num);
@@ -130,6 +132,13 @@ var progressBar = {
 		this.fillStyle = 'black';
 		this.ctx.arc(this.center, this.center, this.incricle, 0, this.pi * 360, true);
 		this.ctx.fill();
+
+		this.ctx.globalCompositeOperation = 'source-over';
+		this.ctx.font 	   	  = this.fontsize + 'px Arial';
+		this.ctx.textAlign 	  = 'center';
+		this.ctx.textBaseline = 'middle';
+
+		this.ctx.fillText(String(Math.ceil(eqNum * countByPB)) + '%', this.center, this.center);
 	},
 	annularXY: function(eqNum, countByPB){
 		var p = eqNum * countByPB;
@@ -167,14 +176,14 @@ var progressBar = {
 	}
 }
 
-progressBar.init('pureColorAnnular', 20, 100, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 200);
+progressBar.init('pureColorAnnular', 60, 50, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 100);
 
 window.onresize = function(){
 	if (resize_num !== 0) {
 		return;						//阻止onresize事件多次触发问题
 	}
 	resize_num ++;
-	progressBar.init('pureColorAnnular', 20, 100, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 200);
+	progressBar.init('pureColorAnnular', 60, 50, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 100);
 	setTimeout(function(){
 		resize_num = 0;
 	}, 100);
