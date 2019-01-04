@@ -107,7 +107,6 @@ var progressBar = {
 		var eqNum = percent / num;
 
 		var xy = this.annularXY(eqNum, countByPB);
-		console.log(xy);return;
 
 		this.ctx.fillStyle = this.ctx.strokeStyle = this.barcolor;
 		this.ctx.beginPath();
@@ -155,39 +154,31 @@ var progressBar = {
 		var angle = p / 100 * 360;
 		var xy = {x:null,y:null};
 		switch (num) {
-			case 0://4
-				xy.x = this.center + this.excricle * Math.cos(Math.abs(90 - angle) * this.pi);
-				xy.y = this.center - this.excricle * Math.sin(Math.abs(90 - angle) * this.pi);
-				break;
-			case 1://1
-				xy.x = this.center + this.excricle * Math.cos((angle - 90) * this.pi);
-				xy.y = this.center + this.excricle * Math.sin((angle - 90) * this.pi);
-				break;
-			case 2://2
-				xy.x = this.center + this.excricle * Math.cos((angle - 90) * this.pi);
-				xy.y = this.center + this.excricle * Math.sin((angle - 90) * this.pi);
-				break;
-			case 3://3
-				xy.x = this.center + this.excricle * Math.cos((angle - 90) * this.pi);
-				xy.y = this.center + this.excricle * Math.sin((angle - 90) * this.pi);
+			case 0://1
+				xy.x = this.center + this.excricle * Math.cos((90 - angle) * this.pi);
+				xy.y = this.center - this.excricle * Math.sin((90 - angle) * this.pi);
 				break;
 			case 4://终点
 				xy.x = this.center;
 				xy.y = 0;
+				break;
+			default ://2、3、4
+				xy.x = this.center + this.excricle * Math.cos((angle - 90) * this.pi);
+				xy.y = this.center + this.excricle * Math.sin((angle - 90) * this.pi);
 				break;
 		}
 		return xy;
 	}
 }
 
-progressBar.init('pureColorAnnular', 60, 100, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 20);
+progressBar.init('pureColorAnnular', 60, 50, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 200);
 
 window.onresize = function(){
 	if (resize_num !== 0) {
 		return;						//阻止onresize事件多次触发问题
 	}
 	resize_num ++;
-	progressBar.init('pureColorAnnular', 60, 100, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 20);
+	progressBar.init('pureColorAnnular', 60, 50, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 200);
 	setTimeout(function(){
 		resize_num = 0;
 	}, 100);
