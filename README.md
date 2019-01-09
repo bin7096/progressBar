@@ -26,6 +26,16 @@
 ```js
 var resize_num = 0;
 
+/**
+ * progressBar.init(type, widthPercent, percent, bgcolor, barcolor, canvas_id, num) 初始化进度条
+ * @param type         进度条类型
+ * @param widthPercent 宽度百分比
+ * @param percent      进度百分比
+ * @param bgcolor      背景色
+ * @param barcolor     进度条颜色
+ * @param canvas_id    canvas画布ID属性
+ * @param num          等份数
+ */
 progressBar.init('pureColorAnnular', 60, 50, 'rgb(146,80,58)', '#3399FF', 'progressBar', 100);
 
 //页面宽高发生变化时重载
