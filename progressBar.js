@@ -1,6 +1,5 @@
-var resize_num = 0;
 var utils = {
-	getWindowSize: function() {
+    getWindowSize: function() {
         return {
             width: this.getWindowWidth(),
             height: this.getWindowHeight()
@@ -17,104 +16,107 @@ var utils = {
 }
 
 var throwError = {
-	content:"ProgressBar.js Arguments '%arg%' Error:%detail%",
-	init:function(arg, detail){
-		throw this.content.replace("%arg%", arg).replace("%detail%", detail);return;
-	}
+    content:"ProgressBar.js Arguments '%arg%' Error:%detail%",
+    init:function(arg, detail){
+        throw this.content.replace("%arg%", arg).replace("%detail%", detail);return;
+    }
 }
 
 var progressBar = {
-	pi          :Math.PI / 180,
-	obj         :null,
-	ctx         :null,
-	width       :null,
-	height      :null,
-	center      :null,
-	fontsize    :null,
-	excricle    :null,
-	incricle    :null,
-	bgcolor     :null,
-	barcolor    :null,
-	canvas_id   :null,
-	canvas_width:null,
-	timeOut_id  :null,
-	type  :[
-		'pureColorAnnular'
-	],
-	init: function(type, width, percent, bgcolor, barcolor, canvas_id, num){
-		//清除定时器
-		if (this.timeOut_id !== null) {
-			clearInterval(this.timeOut_id);
-		}
-		//检测类型
-		if (this.type.indexOf(type) == -1) {
-			throwError.init("type", "进度条类型不存在");return;
-		}
-		//检测宽度百分比
-		if (Math.abs(parseInt(width)) != width) {
-			throwError.init("width", "进度条宽度百分比必须为正整数");return;
-		}
-		//检测传入百分比
-		if (Math.abs(parseInt(percent)) != percent) {
-			throwError.init("percent", "进度条百分比必须为正整数");return;
-		}
-		var bodyWidth  = utils.getWindowWidth();
-		this.canvas_id = canvas_id;
-		this.bgcolor   = bgcolor;
-		this.barcolor  = barcolor;
-		this.obj = this.canvasStyle(bodyWidth);
-		switch(type){
+    pi       : Math.PI / 180,
+    rgbReg   : new RegExp('^[rR][gG][Bb][Aa]?[\(]((2[0-4][0-9]|25[0-5]|[01]?[0-9][0-9]?),){2}(2[0-4][0-9]|25[0-5]|[01]?[0-9][0-9]?),?(0\.\d{1,2}|1|0)?[\)]{1}$'),
+    colorReg : new RegExp('^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$'),
+    type : [
+        'pureColorAnnular'
+    ],
+    init : function (type /*进度条类型*/, widthPercent /*宽度百分比*/, percent /*进度百分比*/, bgcolor /*背景色*/, barcolor /*进度条颜色*/, canvas_id /*画布ID属性*/, num /*等份数*/) {
+        //检测类型
+        if (this.type.indexOf(type) == -1) {
+            throwError.init("type", "进度条类型不存在");return;
+        }
+        //检测宽度百分比
+        if (Math.abs(parseInt(widthPercent)) != widthPercent) {
+            throwError.init("width", "进度条宽度百分比必须为正整数");return;
+        }
+        //检测传入百分比
+        if (Math.abs(parseInt(percent)) != percent) {
+            throwError.init("percent", "进度百分比必须为正整数");return;
+        }
+        //验证背景色
+        if (!this.rgbReg.test(bgcolor) && !this.colorReg.test(bgcolor)) {
+            throwError.init("bgcolor", "背景色的颜色值有误,请使用rgb或16进制颜色值,颜色值勿带空格");return;
+        }
+        //验证进度条颜色值
+        if (!this.rgbReg.test(barcolor) && !this.colorReg.test(barcolor)) {
+            throwError.init("barcolor", "进度条颜色值有误,请使用rgb或16进制颜色值,颜色值勿带空格");return;
+        }
+        //验证等份数
+        if (Math.abs(parseInt(num)) != num) {
+            throwError.init("num", "等份数必须为正整数");return;
+        }
+        let bodyWidth  = utils.getWindowWidth();
+        //progressBar参数集
+        let pbObj = {};
+        pbObj['bgcolor']   = bgcolor;       //背景色
+        pbObj['barcolor']  = barcolor;      //进度条颜色
+        pbObj['canvas_id'] = canvas_id;     //画布ID
+        pbObj['width']     = bodyWidth;     //画布宽度
+        switch(type){
 			case "pureColorAnnular":
-				this.cricleStyle(width, percent, num);
+				this.cricleStyle(pbObj, widthPercent, percent, num);
 				break;
 		}
-	},
-	canvasStyle: function(bodyWidth) {
-		var obj   = document.getElementById(this.canvas_id);
-		obj.width = this.canvas_width = bodyWidth;
-		return obj;
-	},
-	cricleStyle: function(width, percent, num) {
-		this.excricle = Math.floor(this.canvas_width * (width / 100) / 2);
-		console.log(this.excricle);
-		this.incricle = Math.floor(this.excricle * 0.9);
-		this.fontsize = Math.floor(this.excricle * 0.5);
-		this.center   = this.excricle;
-		this.obj.width  = this.obj.height = this.excricle * 2;
-		this.annularStart(percent, num);
-	},
-	annularStart: function(percent, num){
-		this.ctx = this.obj.getContext("2d");
-		
-		this.ctx.translate(0.5, 0.5);  //解决canvas线条模糊问题
-		this.ctx.beginPath();
-		this.ctx.fillStyle = '#CCC';
-		this.ctx.arc(this.center, this.center, this.excricle, 0, this.pi * 360, true);
-		this.ctx.fill();
-		this.ctx.closePath();
+    },
+    initCanvas : function (w /*画布宽度*/, h /*画布高度*/, canvas_id /*画布ID属性*/) {
+        let canvas = document.getElementById(canvas_id);
+        canvas.width  = w;
+        canvas.height = h;
+        return canvas;
+    },
+    cricleStyle : function(pbObj /*参数集*/, widthPercent /*宽度百分比*/, percent /*进度百分比*/, num /*等份数*/) {
+        pbObj['pi']       = this.pi;
+        pbObj['excricle'] = Math.floor(pbObj['width'] * (widthPercent / 100) / 2); //外圆半径
+        pbObj['incricle'] = Math.floor(pbObj['excricle'] * 0.9);                   //内圆半径
+        pbObj['fontsize'] = Math.floor(pbObj['excricle'] * 0.5);                   //文字大小
+        pbObj['center']   = pbObj['excricle'];                                     //圆心位置（相对画布左上角，向右向下偏移多少）
+        let canvas= this.initCanvas(pbObj['excricle'] * 2, pbObj['excricle'] * 2, pbObj['canvas_id']);
+        this.annularStart(canvas, pbObj, percent, num);
+    },
+    annularStart: function(canvas /*画布对象*/, pbObj /*参数集*/, percent /*进度百分比*/, num /*等份数*/){
+        let ctx = pbObj['ctx'] = canvas.getContext("2d");
+        
+        ctx.translate(0.5, 0.5);  //解决canvas线条模糊问题
 
-		var countByPB = 1;
-		this.timeOut_id = setInterval(function() {
-			progressBar.pureCricle(percent, countByPB, num);
-			countByPB ++;
-		}, 10);
-	},
-	pureCricle: function(percent, countByPB, num) {
-		if (countByPB > num) {
-			clearInterval(this.timeOut_id);return;
-		}
+        //圆形底图
+        ctx.beginPath();
+        ctx.fillStyle = pbObj['bgcolor'];
+        ctx.arc(pbObj.center, pbObj.center, pbObj.excricle, 0, this.pi * 360, true);
+        ctx.fill();
+        ctx.closePath();
 
-		var eqNum = percent / num;
+        //环形初始动画
+        let countByPB = 1;
+        let ds = setInterval(function() {
+            if (countByPB >= num) {clearInterval(ds);}
+            progressBarStart.pureCricle(pbObj, percent, countByPB, num);
+            countByPB ++;
+        }, 10);
+    }
+}
 
-		var xy = this.annularXY(eqNum, countByPB);
+var progressBarStart = {
+    pureCricle : function (pbObj /*参数集*/, percent /*进度百分比*/, countByPB  /*当前已处理等份数*/, num /*等份数*/) {
 
-		this.ctx.fillStyle = this.ctx.strokeStyle = this.barcolor;
-		this.ctx.beginPath();
+        var eqNum = percent / num;
 
-		this.ctx.globalCompositeOperation = 'source-over';
+        //百分比扇形
+		pbObj.ctx.fillStyle = pbObj.ctx.strokeStyle = pbObj.barcolor;
+		pbObj.ctx.beginPath();
 
-		this.ctx.moveTo(this.center, this.center);
-		this.ctx.lineTo(this.center, 0);
+		pbObj.ctx.globalCompositeOperation = 'source-over';
+
+		pbObj.ctx.moveTo(pbObj.center, pbObj.center);
+		pbObj.ctx.lineTo(pbObj.center, 0);
 		
 		var stopAngle = eqNum * countByPB / 100 * 360;
 		if (stopAngle >= 90) {
@@ -123,63 +125,27 @@ var progressBar = {
 			stopAngle += 270;
 		}
 		if (stopAngle === 270) {
-			this.ctx.arc(this.center, this.center, this.excricle, 0, 360 * this.pi, false);
+			pbObj.ctx.arc(pbObj.center, pbObj.center, pbObj.excricle, 0, 360 * pbObj.pi, false);
 		}else{
-			this.ctx.arc(this.center, this.center, this.excricle, 270 * this.pi, stopAngle * this.pi, false);
+			pbObj.ctx.arc(pbObj.center, pbObj.center, pbObj.excricle, 270 * pbObj.pi, stopAngle * pbObj.pi, false);
 		}
-		this.ctx.fill();
-		this.ctx.closePath();
+		pbObj.ctx.fill();
+		pbObj.ctx.closePath();
 
-		this.ctx.beginPath();
-		this.ctx.globalCompositeOperation = 'destination-out';
-		this.fillStyle = 'black';
-		this.ctx.arc(this.center, this.center, this.incricle, 0, this.pi * 360, true);
-		this.ctx.fill();
+        //内圆遮盖层
+		pbObj.ctx.beginPath();
+		pbObj.ctx.globalCompositeOperation = 'destination-out';
+		pbObj.fillStyle = 'black';
+		pbObj.ctx.arc(pbObj.center, pbObj.center, pbObj.incricle, 0, pbObj.pi * 360, true);
+		pbObj.ctx.fill();
 
-		this.ctx.globalCompositeOperation = 'source-over';
-		this.ctx.font 	   	  = this.fontsize + 'px Arial';
-		this.ctx.textAlign 	  = 'center';
-		this.ctx.textBaseline = 'middle';
-
-		this.ctx.fillText(String(Math.ceil(eqNum * countByPB)) + '%', this.center, this.center);
-	},
-	annularXY: function(eqNum, countByPB){
-		var p = eqNum * countByPB;
-		var num = p / 25;
-		if (parseInt(num) === num && num != 4) {
-			num --;
-		}else{
-			num = parseInt(num);
-		}
-		var angle = p / 100 * 360;
-		var xy = {x:null,y:null};
-		switch (num) {
-			case 0://1
-				xy.x = this.center + this.excricle * Math.cos((90 - angle) * this.pi);
-				xy.y = this.center - this.excricle * Math.sin((90 - angle) * this.pi);
-				break;
-			case 4://终点
-				xy.x = this.center;
-				xy.y = 0;
-				break;
-			default ://2、3、4
-				xy.x = this.center + this.excricle * Math.cos((angle - 90) * this.pi);
-				xy.y = this.center + this.excricle * Math.sin((angle - 90) * this.pi);
-				break;
-		}
-		return xy;
-	}
-}
-
-progressBar.init('pureColorAnnular', 60, 50, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 200);
-
-window.onresize = function(){
-	if (resize_num !== 0) {
-		return;						//阻止onresize事件多次触发问题
-	}
-	resize_num ++;
-	progressBar.init('pureColorAnnular', 60, 50, 'rgb(255, 255, 255)', '#3399FF', 'progressBar', 200);
-	setTimeout(function(){
-		resize_num = 0;
-	}, 100);
+        //百分比文字
+		pbObj.ctx.globalCompositeOperation = 'source-over';
+		pbObj.ctx.font 	   	   = pbObj.fontsize + 'px Arial';
+		pbObj.ctx.textAlign    = 'center';
+		pbObj.ctx.textBaseline = 'middle';
+        pbObj.ctx.fillText(String(Math.ceil(eqNum * countByPB)) + '%', pbObj.center, pbObj.center);
+        
+        return;
+    }
 }

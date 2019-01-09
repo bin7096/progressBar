@@ -14,13 +14,54 @@
 	}
 	.progressBarDiv{
 		text-align:center;
-		/*background:rgb(255,255,255);*/
 	}
 </style>
 <body>
 	<div class="progressBarDiv">
 		<canvas id="progressBar"></canvas>
 	</div>
+	<div class="progressBarDiv" height="300">
+		
+	</div>
+	<div class="progressBarDiv">
+		<canvas id="progressBar2"></canvas>
+	</div>
+	<div class="progressBarDiv" height="300">
+		
+	</div>
+	<div class="progressBarDiv">
+		<canvas id="progressBar3"></canvas>
+	</div>
 </body>
 <script type="text/javascript" src="progressBar.js"></script>
+<script type="text/javascript">
+
+var resize_num = 0;
+
+progressBar.init('pureColorAnnular', 60, 50, 'rgb(0,255,42)', '#3399FF', 'progressBar', 100);
+
+progressBar.init('pureColorAnnular', 60, 30, '#CCC', '#3399FF', 'progressBar2', 200);
+
+progressBar.init('pureColorAnnular', 80, 30, '#CCC', 'rgb(0,255,42)', 'progressBar3', 300);
+
+//页面宽高发生变化时重载
+window.onresize = function(){
+	if (resize_num !== 0) {
+		return;						//阻止onresize事件多次触发问题
+	}
+    resize_num ++;
+
+    //根据页面变化前已加载的值传递参数
+    progressBar.init('pureColorAnnular', 60, 50, '#CCC', '#3399FF', 'progressBar', 100);
+
+    progressBar.init('pureColorAnnular', 60, 30, '#CCC', '#3399FF', 'progressBar2', 200);
+
+    progressBar.init('pureColorAnnular', 80, 30, '#CCC', '#3399FF', 'progressBar3', 300);
+    
+	setTimeout(function(){
+		resize_num = 0;
+	}, 100);
+}
+
+</script>
 </html>
